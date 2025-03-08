@@ -1,0 +1,17 @@
+asgiref==3.8.1
+Django==5.1.6
+djangorestframework==3.15.2
+drf-yasg==1.21.9
+inflection==0.5.1
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+packaging==24.2
+psycopg2==2.9.10
+python-dotenv==1.0.1
+pytz==2025.1
+PyYAML==6.0.2
+sqlparse==0.5.3
+swagger-ui-py==23.9.23
+termcolor==2.5.0
+tzdata==2025.1
+uritemplate==4.1.1
