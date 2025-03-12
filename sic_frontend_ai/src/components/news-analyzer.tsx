@@ -118,8 +118,8 @@ export function NewsAnalyzer() {
       // For demonstration purposes, we'll simulate a response
       setTimeout(() => {
         setResult({
-          prediction: "Potentially Misleading",
-          probability: 0.78,
+          prediction: "Potentially True",
+          probability: 0.85,
           explanation:
             "The article contains several claims that contradict verified sources. The tone is sensationalist and lacks proper citations for key assertions.",
           alternativeSources: [

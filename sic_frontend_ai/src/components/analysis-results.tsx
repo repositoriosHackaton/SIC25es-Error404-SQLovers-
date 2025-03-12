@@ -13,17 +13,20 @@ interface AnalysisResultProps {
 
 export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
   const { prediction, probability, explanation, alternativeSources } = result
+  console.log(prediction)
 
   const getResultColor = () => {
     if (prediction.toLowerCase().includes("reliable") || prediction.toLowerCase().includes("true")) {
       return "text-green-500"
     }
-    if (prediction.toLowerCase().includes("misleading") || prediction.toLowerCase().includes("false")) {
+    if (prediction.toLowerCase().includes("misleading") || prediction.toLowerCase().includes("misleading")) {
       return "text-amber-500"
     }
     if (prediction.toLowerCase().includes("fake") || prediction.toLowerCase().includes("false")) {
       return "text-red-500"
     }
+
+    console.log(prediction)
     return "text-blue-500"
   }
 
@@ -31,7 +34,7 @@ export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
     if (prediction.toLowerCase().includes("reliable") || prediction.toLowerCase().includes("true")) {
       return <CheckCircle className="h-8 w-8 text-green-500" />
     }
-    if (prediction.toLowerCase().includes("misleading") || prediction.toLowerCase().includes("false")) {
+    if (prediction.toLowerCase().includes("misleading") || prediction.toLowerCase().includes("misleading")) {
       return <AlertTriangle className="h-8 w-8 text-amber-500" />
     }
     if (prediction.toLowerCase().includes("fake") || prediction.toLowerCase().includes("false")) {
