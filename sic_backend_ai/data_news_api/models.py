@@ -43,6 +43,8 @@ class Article(models.Model):
     # Optional fields for prediction results
     prediction = models.CharField(max_length=10, choices=LABEL_CHOICES, null=True, blank=True)
     prediction_confidence = models.FloatField(null=True, blank=True)
+    in_validation_set = models.BooleanField(default=False)  # Campo añadido
+
     
     def __str__(self):
         """Return a string representation of the article"""
@@ -75,6 +77,10 @@ class MLModel(models.Model):
     precision = models.FloatField(null=True, blank=True)
     recall = models.FloatField(null=True, blank=True)
     f1_score = models.FloatField(null=True, blank=True)
+
+    # Experiment and algorithm
+    experiment = models.ForeignKey('ml_news_classifier.MLExperiment', on_delete=models.SET_NULL, null=True, blank=True, related_name='models')
+    algorithm = models.CharField(max_length=100, null=True, blank=True)
     
     # Model binary data could be stored here or in a file field
     model_file = models.FileField(upload_to='ml_models/', null=True, blank=True)
