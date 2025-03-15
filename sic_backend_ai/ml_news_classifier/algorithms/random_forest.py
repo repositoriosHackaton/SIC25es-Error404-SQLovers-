@@ -120,3 +120,79 @@ class RandomForestNewsClassifier:
         except Exception as e:
             print(f"Error durante el entrenamiento de Random Forest: {e}")
             return None
+            
+    def load(self, model_id):
+        """
+        Carga un modelo entrenado desde la base de datos
+        
+        Args:
+            model_id: ID del modelo a cargar
+        """
+        try:
+            model_record = MLModel.objects.get(id=model_id)
+        except MLModel.DoesNotExist:
+            raise ValueError(f"No se encontró un modelo con ID {model_id}")
+            
+        if model_record.algorithm != 'random_forest':
+            raise ValueError(f"El modelo con ID {model_id} no es un Random Forest")
+            
+        if model_record.model_file:
+            self.model = joblib.load(model_record.model_file.path)
+        else:
+            model_path = f"ml_models/rf_{model_record.id}.joblib"
+            if os.path.exists(model_path):
+                self.model = joblib.load(model_path)
+            else:
+                raise FileNotFoundError(f"No se encontró el archivo del modelo: {model_path}")
+                
+        # Cargar los nombres de características del experimento
+        experiment = model_record.experiment
+        if experiment and 'feature_names' in experiment.parameters:
+            self.feature_names = experiment.parameters['feature_names']
+        else:
+            print("Advertencia: No se encontraron los nombres de características en el experimento")
+        
+        self.model_id = model_id
+
+    def predict(self, article):
+        """
+        Predice si un artículo es verdadero o falso
+        
+        Args:
+            article: Objeto Article a predecir
+            
+        Returns:
+            tuple: (label, confidence)
+            - label: Article.TRUE o Article.FALSE
+            - confidence: Valor entre 0 y 1
+        """
+        # Verificar que el modelo está cargado
+        if self.model is None:
+            raise ValueError("El modelo no está cargado. Usa load() o train() primero.")
+        
+        # Obtener características del artículo
+        features = Feature.objects.filter(article=article)
+        
+        if not features.exists():
+            raise ValueError(f"El artículo {article.id} no tiene características extraídas")
+        
+        # Convertir a diccionario
+        feature_dict = {f.feature_name: f.feature_value for f in features}
+        
+        # Crear vector con las mismas características que se usaron en entrenamiento
+        if not hasattr(self, 'feature_names') or not self.feature_names:
+            raise ValueError("No se encontraron los nombres de características del modelo")
+            
+        # Crear vector de características en el mismo orden que se usó durante el entrenamiento
+        X = np.zeros((1, len(self.feature_names)))
+        for i, feature_name in enumerate(self.feature_names):
+            X[0, i] = feature_dict.get(feature_name, 0)
+            
+        # Predecir
+        proba = self.model.predict_proba(X)[0]
+        
+        # El índice 1 corresponde a la clase positiva (verdadero)
+        confidence = proba[1]  
+        predicted_label = Article.TRUE if confidence >= 0.5 else Article.FALSE
+        
+        return predicted_label, confidence

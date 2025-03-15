@@ -5,6 +5,9 @@ from ml_news_classifier.algorithms.neuronal_network import NeuronalNetworkNewsCl
 from ml_news_classifier.models import MLExperiment, FeatureImportance
 from data_news_api.models import MLModel
 from django.db import transaction
+import os
+import joblib
+from django.utils import timezone
 
 class Command(BaseCommand):
     help = 'Entrena un modelo de machine learning para la detección de noticias falsas'
@@ -126,6 +129,36 @@ class Command(BaseCommand):
                         self.stdout.write(self.style.SUCCESS("\nCaracterísticas más importantes:"))
                         for i, feature in enumerate(top_features):
                             self.stdout.write(f"{i+1}. {feature.feature_name}: {feature.importance:.4f}")
+                
+                # Guardar modelo en un archivo
+                model_path = f"ml_models/rf_{experiment.id}.joblib"
+                os.makedirs(os.path.dirname(model_path), exist_ok=True)
+                joblib.dump(classifier.model, model_path)
+
+                # Verificar que el archivo se creó correctamente
+                if not os.path.exists(model_path):
+                    raise RuntimeError(f"No se pudo crear el archivo del modelo en {model_path}")
+
+                # Crear registro de modelo
+                ml_model = MLModel.objects.create(
+                    name=f"RandomForest-{experiment.id}",
+                    description=f"Random Forest classifier trained with {len(classifier.feature_names)} features",
+                    algorithm="random_forest",
+                    experiment=experiment,
+                    created_at=timezone.now()
+                )
+
+                # Asociar el archivo al modelo
+                with open(model_path, 'rb') as f:
+                    ml_model.model_file.save(os.path.basename(model_path), f)
+
+                # Verificar que el archivo se asoció correctamente
+                if not ml_model.model_file:
+                    raise RuntimeError("No se pudo asociar el archivo al modelo en la base de datos")
+
+                # Asociar el modelo al experimento
+                experiment.ml_model = ml_model
+                experiment.save()
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Error durante el entrenamiento: {str(e)}"))
