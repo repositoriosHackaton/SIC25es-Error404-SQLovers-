@@ -35,6 +35,7 @@ class Command(BaseCommand):
         # Filtrado de características
         parser.add_argument('--include', type=str, help='Solo incluir características que comienzan con estos prefijos, separados por coma')
         parser.add_argument('--exclude', type=str, help='Excluir características que comienzan con estos prefijos, separados por coma')
+        parser.add_argument('--features', type=str, choices=['all'], help='Usar todas las características disponibles')
 
     def handle(self, *args, **options):
         experiment_name = options['name']
@@ -45,19 +46,24 @@ class Command(BaseCommand):
         include_features = None
         exclude_features = None
         
-        if options.get('include'):
-            include_features = options['include'].split(',')
-            self.stdout.write(f"Incluyendo solo características que comienzan con: {include_features}")
-            
-        if options.get('exclude'):
-            exclude_features = options['exclude'].split(',')
-            self.stdout.write(f"Excluyendo características que comienzan con: {exclude_features}")
+        # Si se especificó --features all, no aplicamos ningún filtro
+        if options.get('features') == 'all':
+            self.stdout.write("Usando TODAS las características disponibles")
+            include_features = None
+            exclude_features = None
+        else:
+            if options.get('include'):
+                include_features = options['include'].split(',')
+                self.stdout.write(f"Incluyendo solo características que comienzan con: {include_features}")
+                
+            if options.get('exclude'):
+                exclude_features = options['exclude'].split(',')
+                self.stdout.write(f"Excluyendo características que comienzan con: {exclude_features}")
         
         # Crear el clasificador según el algoritmo seleccionado
         if algorithm == 'rf':
             n_estimators = options['estimators']
             max_depth = options.get('max_depth')
-            feature_names = classifier.feature_names_
             
             self.stdout.write(f"Entrenando Random Forest con {n_estimators} árboles...")
             if max_depth:
