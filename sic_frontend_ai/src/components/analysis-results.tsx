@@ -1,83 +1,83 @@
-import { AlertTriangle, CheckCircle, Info, ExternalLink } from "lucide-react"
-import { Progress } from "@/components/ui/progress"
+import { AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
+interface PredictionDetails {
+  accuracy: number;
+  prediction: string;
+  prediction_time: number;
+}
 
 interface AnalysisResultProps {
   result: {
-    prediction: string
-    probability: number
-    explanation: string
-    alternativeSources: string[]
-  }
-  onReset: () => void
+    final_prediction: string;
+    explanation: string;
+    predictions: Record<string, PredictionDetails>;
+    confidence: number;
+  };
+  onReset: () => void;
 }
 
 export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
-  const { prediction, probability, explanation, alternativeSources } = result
-  console.log(prediction)
+  const { final_prediction, explanation, predictions, confidence } = result;
 
   const getResultColor = () => {
-    if (prediction.toLowerCase().includes("reliable") || prediction.toLowerCase().includes("true")) {
-      return "text-green-500"
-    }
-    if (prediction.toLowerCase().includes("misleading") || prediction.toLowerCase().includes("misleading")) {
-      return "text-amber-500"
-    }
-    if (prediction.toLowerCase().includes("fake") || prediction.toLowerCase().includes("false")) {
-      return "text-red-500"
-    }
-
-    console.log(prediction)
-    return "text-blue-500"
-  }
+    const pred = final_prediction.toLowerCase();
+    if (pred.includes("real") || pred.includes("true")) return "text-green-500";
+    if (pred.includes("misleading")) return "text-amber-500";
+    if (pred.includes("fake") || pred.includes("false")) return "text-red-500";
+    return "text-blue-500";
+  };
 
   const getResultIcon = () => {
-    if (prediction.toLowerCase().includes("reliable") || prediction.toLowerCase().includes("true")) {
-      return <CheckCircle className="h-8 w-8 text-green-500" />
-    }
-    if (prediction.toLowerCase().includes("misleading") || prediction.toLowerCase().includes("misleading")) {
-      return <AlertTriangle className="h-8 w-8 text-amber-500" />
-    }
-    if (prediction.toLowerCase().includes("fake") || prediction.toLowerCase().includes("false")) {
-      return <AlertTriangle className="h-8 w-8 text-red-500" />
-    }
-    return <Info className="h-8 w-8 text-blue-500" />
-  }
+    const pred = final_prediction.toLowerCase();
+    if (pred.includes("real") || pred.includes("true")) return <CheckCircle className="h-8 w-8 text-green-500" />;
+    if (pred.includes("misleading")) return <AlertTriangle className="h-8 w-8 text-amber-500" />;
+    if (pred.includes("fake") || pred.includes("false")) return <AlertTriangle className="h-8 w-8 text-red-500" />;
+    return <Info className="h-8 w-8 text-blue-500" />;
+  };
 
   return (
     <div className="space-y-6">
+      {/* Header - Resultado Final */}
       <div className="flex items-center space-x-4">
         {getResultIcon()}
         <div>
-          <h3 className={`text-xl font-bold ${getResultColor()}`}>{prediction}</h3>
+          <h3 className={`text-xl font-bold ${getResultColor()}`}>Potentially {final_prediction}</h3>
           <div className="flex items-center mt-1">
             <span className="text-sm text-muted-foreground mr-2">Confidence:</span>
-            <Progress value={probability * 100} className="h-2 w-24" />
-            <span className="ml-2 text-sm">{Math.round(probability * 100)}%</span>
+            <Progress value={confidence * 100} className="h-2 w-24" />
+            <span className="ml-2 text-sm">{Math.round(confidence * 100)}%</span>
           </div>
         </div>
       </div>
 
+      {/* Modelos Evaluados */}
+      <div>
+        <h4 className="font-medium mb-2">Model Evaluations:</h4>
+        <div className="space-y-4">
+          {Object.entries(predictions).map(([model, details]) => (
+            <div key={model} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+              <div>
+                <h4 className="font-medium capitalize">{model.replace(/_/g, ' ')}</h4>
+                <p className="text-sm text-muted-foreground">Accuracy: {details.accuracy.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Time: {details.prediction_time}s</p>
+              </div>
+              <div className="flex items-center">
+                <Progress value={details.accuracy * 100} className="h-2 w-24" />
+                <span className="ml-2 text-sm">{details.prediction}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Explicación del Análisis */}
       <div>
         <h4 className="font-medium mb-2">Analysis Explanation:</h4>
         <p className="text-muted-foreground">{explanation}</p>
       </div>
 
-      {alternativeSources.length > 0 && (
-        <div>
-          <h4 className="font-medium mb-2">Verified Sources:</h4>
-          <ul className="space-y-2">
-            {alternativeSources.map((source, index) => (
-              <li key={index} className="flex items-center">
-                <ExternalLink className="h-4 w-4 mr-2 text-primary" />
-                <a href={source} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                  {source}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
+      {/* Disclaimer */}
       <div className="mt-8 p-4 bg-muted rounded-lg">
         <div className="flex items-start space-x-2">
           <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
@@ -92,6 +92,5 @@ export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
