@@ -9,7 +9,7 @@ router.register(r'data_news/features/api/v1/data', FeatureView, basename='featur
 router.register(r'data_news/ml-models/api/v1/data', MLModelView, basename='ml-model')
 
 
-
+ 
 urlpatterns = [
     path('', include(router.urls)),
     path('dataset-stats/', MigratedDatasetStats.as_view(), name='dataset-stats'),

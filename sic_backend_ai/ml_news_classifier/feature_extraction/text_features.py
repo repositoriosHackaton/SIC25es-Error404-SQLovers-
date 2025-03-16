@@ -23,8 +23,8 @@ class TextFeatureExtractor:
         self.spanish_stopwords = list(stopwords.words('spanish'))
         self.tfidf_vectorizer = TfidfVectorizer(
             max_features=1000,
-            min_df=2,
-            max_df=0.9,
+            min_df=3,
+            max_df=0.95,
             stop_words=self.spanish_stopwords,
             ngram_range=(1, 2)
         )

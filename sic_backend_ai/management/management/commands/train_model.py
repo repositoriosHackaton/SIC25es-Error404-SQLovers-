@@ -114,6 +114,13 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR("El experimento no se creó correctamente."))
                     return
                 
+                if hasattr(classifier, 'feature_names') and classifier.feature_names:
+                    params = experiment.parameters or {}
+                    params['feature_names'] = classifier.feature_names
+                    experiment.parameters = params
+                    experiment.save()
+                    self.stdout.write(f"Guardados {len(classifier.feature_names)} nombres de características en el experimento")
+                        
                 self.stdout.write(self.style.SUCCESS(f"\nModelo entrenado exitosamente: {experiment.name}"))
                 self.stdout.write(f"ID del experimento: {experiment.id}")
                 

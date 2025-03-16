@@ -86,8 +86,20 @@ class Command(BaseCommand):
                 model_path = model.model_file.path
                 clf = joblib.load(model_path)
 
-                model_features = feature_names  # Usar los nombres de características guardados en el experimento
+                model_features = None  # Usar los nombres de características guardados en el experimento
 
+                if experiment and 'feature_names' in experiment.parameters:
+                    model_features = experiment.parameters['feature_names']
+                    print(f"Usando {len(model_features)} características del experimento")
+                    
+                elif hasattr(clf, 'feature_names_in_'):
+                    model_features = clf.feature_names_in_.tolist()
+                    print(f"Usando {len(model_features)} características del modelo")
+                
+                else:
+                    model_features = X_test_df.columns.tolist()
+                    print(f"ADVERTENCIA: Usando todas las {len(model_features)} características disponibles")                    
+                                    
                 if not model_features:
                     raise ValueError("No se encontraron nombres de características en el experimento asociado.")
 
@@ -99,7 +111,11 @@ class Command(BaseCommand):
 
                 X_test = X_test_df.fillna(0).values
                 
-                results = evaluate_model(model.id, X_test=X_test)
+                # Añadir más diagnósticos antes de llamar a evaluate_model
+                self.stdout.write(f"Preparando evaluación para modelo {model.id}")
+                self.stdout.write(f"Datos de prueba: X_test shape {X_test.shape}, {len(test_article_ids)} artículos")
+    
+                results = evaluate_model(model.id, X_test=X_test, verbose=True)
                 
                 if results:
                     self.stdout.write(self.style.SUCCESS("Resultados de evaluación:"))
@@ -115,7 +131,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"Actual True    {cm[1][0]:12d}  {cm[1][1]:12d}")
                     
                 else:
-                    self.stdout.write(self.style.WARNING("No se obtuvieron resultados de evaluación"))
+                    self.stdout.write(self.style.WARNING(f"⚠️ No se obtuvieron resultados de evaluación para el modelo {model.id} - verificar si hay errores silenciosos"))
                     
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"Error evaluando modelo: {str(e)}"))

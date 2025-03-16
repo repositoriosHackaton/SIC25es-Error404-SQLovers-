@@ -74,6 +74,7 @@ class RandomForestNewsClassifier:
                     "feature_names": feature_names,
                 },
                 created_at=timezone.now()
+                
             )
 
             # experiment.parameters['feature_names'] = feature_names
