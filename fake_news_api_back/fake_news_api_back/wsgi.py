@@ -13,16 +13,19 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fake_news_api_back.settings')
 
-# Descargar datos de NLTK
+# Configurar el directorio de datos de NLTK
 import nltk
+nltk.data.path.append("/app/nltk_data")  # Cambia "/app/nltk_data" al directorio deseado
+
+# Descargar datos de NLTK
 try:
     nltk.data.find('corpora/stopwords')
 except LookupError:
-    nltk.download('stopwords')
+    nltk.download('stopwords', download_dir="/app/nltk_data")
 
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
-    nltk.download('punkt')
+    nltk.download('punkt', download_dir="/app/nltk_data")
 
 application = get_wsgi_application()
