@@ -30,4 +30,5 @@ threadpoolctl==3.6.0
 tqdm==4.67.1
 tzdata==2025.1
 uritemplate==4.1.1
+whitenoise==6.9.0
 xgboost==3.0.0

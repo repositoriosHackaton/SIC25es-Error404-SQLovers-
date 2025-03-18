@@ -1,1 +1,1 @@
-web: gunicorn fake_news_api_back.wsgi --bind 0.0.0.0:$PORT
+web: python manage.py collectstatic && gunicorn fake_news_api_back.wsgi --bind 0.0.0.0:$PORT
