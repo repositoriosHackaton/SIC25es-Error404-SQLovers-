@@ -13,4 +13,11 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fake_news_api_back.settings')
 
+# Descargar datos de NLTK
+import nltk
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
 application = get_wsgi_application()
