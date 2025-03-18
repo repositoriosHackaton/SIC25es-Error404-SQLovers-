@@ -1,7 +1,7 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = process.env.BACKEND_URL || "http://127.0.0.1:8000";
 
 export async function analyzeNews(content: string, mode: "default" | "all" | "single", modelType?: string) {
-  let endpoint = `${BASE_URL}/api/predict/v1/api/ai/default`; // Default por defecto
+  let endpoint = `${BASE_URL}/api/predict/v1/api/ai/default`; 
 
   if (mode === "all") {
     endpoint = `${BASE_URL}/api/predict/advanced/v1/ai/full-featured`;
