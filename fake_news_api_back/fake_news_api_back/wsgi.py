@@ -17,15 +17,15 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fake_news_api_back.settings')
 import nltk
 nltk.data.path.append("/app/nltk_data")  # Cambia "/app/nltk_data" al directorio deseado
 
-# Descargar datos de NLTK
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('stopwords', download_dir="/app/nltk_data")
+# Configurar el directorio de datos de NLTK
+nltk.data.path.append("/app/nltk_data")  
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt', download_dir="/app/nltk_data")
+# Descargar datos de NLTK si no existen
+for resource in ['stopwords', 'punkt', 'punkt_tab']:
+    try:
+        nltk.data.find(f'tokenizers/{resource}')
+    except LookupError:
+        nltk.download(resource, download_dir="/app/nltk_data")
+
 
 application = get_wsgi_application()

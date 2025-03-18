@@ -1,1 +1,1 @@
-web: python manage.py collectstatic && python -m nltk.downloader -d /app/nltk_data stopwords punkt && gunicorn fake_news_api_back.wsgi --bind 0.0.0.0:$PORT
+web: python manage.py collectstatic --noinput && python -m nltk.downloader -d /app/nltk_data stopwords punkt punkt_tab && gunicorn fake_news_api_back.wsgi --bind 0.0.0.0:$PORT
