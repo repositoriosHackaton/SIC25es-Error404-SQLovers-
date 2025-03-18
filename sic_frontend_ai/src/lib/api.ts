@@ -1,4 +1,4 @@
-const BASE_URL = process.env.BACKEND_URL || "http://127.0.0.1:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function analyzeNews(content: string, mode: "default" | "all" | "single", modelType?: string) {
   let endpoint = `${BASE_URL}/api/predict/v1/api/ai/default`; 
