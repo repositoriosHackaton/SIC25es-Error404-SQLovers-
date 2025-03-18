@@ -33,3 +33,5 @@ venv.bak/
 Thumbs.db
 .joblib
 *.joblib
+
+*/staticfiles
