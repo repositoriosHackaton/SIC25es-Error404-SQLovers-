@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export default function Home() {
   return (
     <main className="min-h-screen relative">
-      <div className="relative py-2">
+      <div className="relative">
         <div className="container px-4 md:px-6">
           <div className="flex justify-end mb-4">
             <ThemeToggle />
