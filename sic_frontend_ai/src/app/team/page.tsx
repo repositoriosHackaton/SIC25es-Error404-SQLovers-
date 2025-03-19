@@ -23,6 +23,15 @@ export default function AboutUsPage() {
       github: "https://github.com/Walter-D3v",
       linkedin: "https://www.linkedin.com/in/walter-cortez-25536a326/",
       email: "walterc.personal@gmail.com",
+    },
+    {
+      name: "Brisa Alvarenga",
+      role: "Python Developer",
+      avatar: "/placeholder.svg?height=100&width=100",
+      bio: "Python and AI student open to understand and learn everything in the enviroment that leads in the actual times.",
+      github: "https://github.com/RainDrop-Pi",
+      linkedin: "https://www.linkedin.com/in/brisa-zahory-alvarenga-castillo-9093a5353/",
+      email: "brizahory.7@gmail.com",
     }
   ]
 
