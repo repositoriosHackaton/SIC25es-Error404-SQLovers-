@@ -35,9 +35,9 @@ export default function AboutUsPage() {
     },
     {
       name: "Ronald Hernandez",
-      role: "Junior developer for digital industry || Backend Developer",
+      role: "Backend Developer for Digital Industry",
       avatar: "/placeholder.svg?height=100&width=100",
-      bio: "A Junior Developer for the Digital Industry or Backend Developer Trainee with experience in Python focuses on developing and maintaining backend systems, optimizing data processing, and integrating APIs for digital applications.",
+      bio: "Junior Developer specialized in the digital industry, with experience in backend development using Python and frameworks like Django. I am passionate about automation, data analysis, and IIoT solutions, combining technology and innovation for the development of intelligent systems.",
       github: "https://github.com/RonaldHZzzz",
       linkedin: "https://www.linkedin.com/in/ronald-hernandez-4a3aaa310/",
       email: "ronaldhernandez212121@gmail.com",
