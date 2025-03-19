@@ -41,7 +41,16 @@ export default function AboutUsPage() {
       github: "https://github.com/RonaldHZzzz",
       linkedin: "https://www.linkedin.com/in/ronald-hernandez-4a3aaa310/",
       email: "ronaldhernandez212121@gmail.com",
-    }
+    },
+    {
+      name: "Henry Valdez",
+      role: "Cloud Developer (AWS) Backend Developer ",
+      avatar: "/placeholder.svg?height=100&width=100",
+      bio: "Cloud Developer (AWS) y Backend Developer con experiencia en el diseño, implementación y optimización de infraestructuras escalables en la nube. Especializado en la gestión de servicios en AWS, automatización de despliegues y desarrollo de APIs eficientes utilizando tecnologías modernas. ",
+      github: "https://github.com/HenryLevi",
+      linkedin: "https://www.linkedin.com/in/henry-valdez-48513533a/",
+      email: "henrymelgaresvaldez@gmail.com",
+    },
   ]
 
   return (
