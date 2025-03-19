@@ -8,7 +8,7 @@ export default function AboutUsPage() {
   const developers = [
     {
       name: "Luis Ramos",
-      role: "Backend Developer and NextJs Fullstack",
+      role: "Backend Developer | NextJs Fullstack",
       avatar: "/placeholder.svg?height=100&width=100",
       bio: "Full-stack developer with 3+ years of experience specializing in React with NextJs, and backend development with Django and NestJs. Passionate about clean code and user experience.",
       github: "https://github.com/Ezzz-lui",
@@ -47,7 +47,7 @@ export default function AboutUsPage() {
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Meet Our Team</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">Development Our Team</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           We're part of Samsung Innovation Campus - 2025 Edition.
           We develop this proyect to help people to verify the authenticity of news articles using Python, NextJs and Django.
