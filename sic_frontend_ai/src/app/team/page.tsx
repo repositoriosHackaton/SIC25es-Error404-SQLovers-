@@ -32,6 +32,15 @@ export default function AboutUsPage() {
       github: "https://github.com/RainDrop-Pi",
       linkedin: "https://www.linkedin.com/in/brisa-zahory-alvarenga-castillo-9093a5353/",
       email: "brizahory.7@gmail.com",
+    },
+    {
+      name: "Ronald Hernandez",
+      role: "Junior developer for digital industry || Backend Developer",
+      avatar: "/placeholder.svg?height=100&width=100",
+      bio: "A Junior Developer for the Digital Industry or Backend Developer Trainee with experience in Python focuses on developing and maintaining backend systems, optimizing data processing, and integrating APIs for digital applications.",
+      github: "https://github.com/RonaldHZzzz",
+      linkedin: "https://www.linkedin.com/in/ronald-hernandez-4a3aaa310/",
+      email: "ronaldhernandez212121@gmail.com",
     }
   ]
 
