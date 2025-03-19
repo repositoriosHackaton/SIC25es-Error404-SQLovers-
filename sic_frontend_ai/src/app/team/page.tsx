@@ -8,7 +8,7 @@ export default function AboutUsPage() {
   const developers = [
     {
       name: "Luis Ramos",
-      role: "Backend Developer and NextJs Fullstack",
+      role: "Backend Developer | NextJs Fullstack",
       avatar: "/placeholder.svg?height=100&width=100",
       bio: "Full-stack developer with 3+ years of experience specializing in React with NextJs, and backend development with Django and NestJs. Passionate about clean code and user experience.",
       github: "https://github.com/Ezzz-lui",
