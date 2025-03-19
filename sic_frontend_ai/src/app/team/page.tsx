@@ -8,13 +8,22 @@ export default function AboutUsPage() {
   const developers = [
     {
       name: "Luis Ramos",
-      role: "Backend Developer and Fullstack with NextJs",
+      role: "Backend Developer and NextJs Fullstack",
       avatar: "/placeholder.svg?height=100&width=100",
       bio: "Full-stack developer with 3+ years of experience specializing in React with NextJs, and backend development with Django and NestJs. Passionate about clean code and user experience.",
       github: "https://github.com/Ezzz-lui",
       linkedin: "https://linkedin.com/in/lk-ramos",
       email: "ogn.lui@gmail.com",
     },
+    {
+      name: "Walter Meléndez",
+      role: "Python Developer",
+      avatar: "/placeholder.svg?height=100&width=100",
+      bio: "Python Data Science and Machine Learning Developer, mainly dedicated to learning and applying new technologies to science research ",
+      github: "https://github.com/Walter-D3v",
+      linkedin: "https://www.linkedin.com/in/walter-cortez-25536a326/",
+      email: "walterc.personal@gmail.com",
+    }
   ]
 
   return (
