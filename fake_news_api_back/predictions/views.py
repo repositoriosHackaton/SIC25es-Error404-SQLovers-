@@ -1,4 +1,7 @@
 from rest_framework.views import APIView
+from rest_framework import parsers
+from rest_framework.parsers import MultiPartParser
+from ml_models.processor import extract_text_from_image
 from rest_framework.response import Response
 from rest_framework import status
 from ml_models.models import MODELS, VECTORIZER
@@ -226,3 +229,46 @@ class PredictWithAllModelsView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+class PredictFromImageView(APIView):
+    parser_classes = [MultiPartParser]
+
+    @swagger_auto_schema(
+        operation_description="Sube una imagen con texto de noticia y predice si es real o falsa.",
+        tags=["Predictions (from image)"],
+        manual_parameters=[
+            openapi.Parameter(
+                name="image",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="Imagen que contiene la noticia",
+                required=True,
+            )
+        ]
+    )
+    def post(self, request):
+        if 'image' not in request.FILES:
+            return Response({"error": "No se ha subido una imagen."}, status=400)
+
+        image = request.FILES['image']
+        text = extract_text_from_image(image)
+
+        if not text.strip():
+            return Response({"error": "No se pudo extraer texto de la imagen."}, status=400)
+
+        clean_text = preprocess_text(text)
+        text_vectorized = VECTORIZER.transform([clean_text])
+        model = MODELS.get("logistic")
+        prediction = model.predict(text_vectorized)[0]
+        prediction_label = "Fake" if prediction == 1 else "Real"
+
+        Prediction.objects.create(
+            text=text,
+            prediction=prediction_label,
+            model_used="logistic"
+        )
+
+        return Response({
+            "extracted_text": text,
+            "final_prediction": prediction_label,
+        }, status=201)  # <-- 201 si decides dejarlo como "created"
