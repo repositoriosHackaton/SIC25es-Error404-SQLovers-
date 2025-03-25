@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative max-w-full">
+    <main className="relative max-w-full">
       <div className="relative">
-        <div className="container px-4 md:px-3 mx-auto flex flex-col justify-center min-h-screen">
-          <div className="flex justify-between items-center mb-4">
+        <div className="container px-4 md:px-3 mx-auto flex flex-col justify-center my-auto">
+          <div className="flex justify-between items-center mb-2 mt-6">
             <div>
               <Button variant="link" asChild>
                 <a href="https://github.com/repositoriosHackaton/SIC25es-Error404-SQLovers-" target="_blank" rel="noopener noreferrer">
@@ -33,13 +33,13 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col items-center text-center space-y-4 mb-8">
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-4 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-neutral-700 dark:via-white dark:to-neutral-700 dark:animate-text-shimmer text-center">News Verification Tool</h1>
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-4 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-neutral-500 dark:via-white dark:to-neutral-500 dark:animate-text-shimmer text-center">News Verification Tool</h1>
             <p className="max-w-[700px] text-muted-foreground md:text-xl">
               Verify the authenticity of news articles by pasting text, URLs, or uploading screenshots.
             </p>
           </div>
 
-          <Alert className="mb-8 max-w-3xl mx-auto border-yellow-500">
+          <Alert className="mb-8 max-w-4xl mx-auto border-yellow-500">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Disclaimer</AlertTitle>
             <AlertDescription>
@@ -53,7 +53,7 @@ export default function Home() {
         <footer className="w-full py-4">
           <div className="container mx-auto px-4 text-center">
             <p className="text-sm text-muted-foreground dark:text-neutral-400">
-              &copy; {new Date().getFullYear()} News Verification Tool. All rights reserved. - A project for Samsung Innovation Campus
+              &copy; {new Date().getFullYear()} News Verification Tool. - A project for Samsung Innovation Campus
             </p>
           </div>
         </footer>

@@ -1,6 +1,5 @@
 annotated-types==0.7.0
 asgiref==3.8.1
-blis==1.2.0
 catalogue==2.0.10
 certifi==2025.1.31
 charset-normalizer==3.4.1
@@ -57,14 +56,10 @@ setuptools==76.0.0
 shellingham==1.5.4
 six==1.17.0
 smart-open==7.1.0
-spacy==3.8.4
-spacy-legacy==3.0.12
-spacy-loggers==1.0.5
 sqlparse==0.5.3
 srsly==2.5.1
 swagger-ui-py==23.9.23
 termcolor==2.5.0
-thinc==8.3.4
 threadpoolctl==3.6.0
 tqdm==4.67.1
 typer==0.15.2

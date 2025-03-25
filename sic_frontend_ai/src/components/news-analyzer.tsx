@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { analyzeNews } from "@/lib/api";
+import { analyzeNews, analyzeNewsByImage, analyzeNewsByUrl } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +21,7 @@ import {
   LinkIcon,
   FileText,
   AlertTriangle,
+  Terminal,
 } from "lucide-react";
 import { AnalysisResults } from "@/components/analysis-results";
 
@@ -54,7 +55,7 @@ export function NewsAnalyzer() {
   const [status, setStatus] = useState<AnalysisStatus>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"general" | "devs">("general");
+  const [tab, setTab] = useState<"general" | "devs" | "url" | "images">("general");
   const [predictionMode, setPredictionMode] =
     useState<PredictionMode>("default");
   const [selectedModel, setSelectedModel] = useState<string>("naive_bayes");
@@ -70,17 +71,24 @@ export function NewsAnalyzer() {
     setError(null);
 
     try {
-      if (!textInput.trim()) {
-        throw new Error("Please enter some text to analyze");
+      let data;
+      console.log("Input type:", inputType); // Depuración
+      if (inputType === "text") {
+        if (!textInput.trim()) throw new Error("Please enter some text to analyze");
+        data = await analyzeNews(textInput, "default", "logistic");
+      } else if (inputType === "url") {
+        if (!urlInput.trim()) throw new Error("Please enter a valid URL");
+        console.log("Analyzing URL:", urlInput); // Depuración
+        data = await analyzeNewsByUrl(urlInput);
+      } else if (inputType === "image") {
+        if (!imageFile) throw new Error("Please upload an image");
+        data = await analyzeNewsByImage(imageFile);
       }
 
-      const data = await analyzeNews(textInput, predictionMode, selectedModel);
       setResult(data);
       setStatus("success");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
       setStatus("error");
     }
   };
@@ -95,7 +103,7 @@ export function NewsAnalyzer() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <Card className="shadow-lg border-3">
         <CardHeader>
           <CardTitle>Analyze News Content</CardTitle>
@@ -108,13 +116,27 @@ export function NewsAnalyzer() {
             <AnalysisResults result={result} onReset={resetForm} />
           ) : (
             <>
-              <Tabs
+                <Tabs
                 defaultValue="general"
-                onValueChange={(value) => setTab(value as "general" | "devs")}
-              >
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="general">General</TabsTrigger>
-                  <TabsTrigger value="devs">For Devs</TabsTrigger>
+                onValueChange={(value) => setInputType(value as InputType)}
+                >
+                <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsTrigger value="general">
+                  <FileText className="mr-2 h-4 w-4" />
+                    Text
+                  </TabsTrigger>
+                  <TabsTrigger value="url">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="images">
+                  <Upload className="mr-2 h-4 w-4" />
+                    Image
+                  </TabsTrigger>
+                  <TabsTrigger value="devs">
+                    <Terminal className="mr-2 h-4 w-4" />
+                    For Devs
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* General Mode */}
@@ -185,25 +207,57 @@ export function NewsAnalyzer() {
                     onChange={(e) => setTextInput(e.target.value)}
                   />
                 </TabsContent>
+
+                <TabsContent value="url">
+                  <div className="space-y-4">
+                    <Label htmlFor="url-input">Enter news article URL</Label>
+                    <Input
+                      id="url-input"
+                      type="url"
+                      placeholder="https://noticias.com/nota"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="images">
+                  <div className="space-y-4">
+                    <Label htmlFor="image-input">Upload screenshot of news article</Label>
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                      <Input
+                        id="image-input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setImageFile(e.target.files[0]);
+                          }
+                        }}
+                      />
+                      <Label htmlFor="image-input" className="flex flex-col items-center justify-center cursor-pointer">
+                      <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+                      <span className="text-sm font-medium">
+                        {imageFile ? imageFile.name : "Click to upload or drag and drop"}
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
+                    </Label>
+                    </div>
+                  </div>
+                </TabsContent>
+
               </Tabs>
             </>
           )}
         </CardContent>
         <CardFooter className="flex justify-end space-x-3">
           {result ? (
-            <Button
-              onClick={resetForm}
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={resetForm} variant="outline" className="w-full sm:w-auto">
               Analyze Other
             </Button>
           ) : (
-            <Button
-              onClick={handleAnalyze}
-              disabled={status === "loading"}
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={handleAnalyze} disabled={status === "loading"} className="w-full sm:w-auto">
               {status === "loading" ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (

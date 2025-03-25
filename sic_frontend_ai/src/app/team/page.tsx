@@ -54,9 +54,9 @@ export default function AboutUsPage() {
   ]
 
   return (
-    <div className="container mx-auto py-12 px-4">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Development Our Team</h1>
+    <div className="container mx-auto py-6 px-4">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold tracking-tight mb-2">Development Our Team</h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           We're part of Samsung Innovation Campus - 2025 Edition.
           We develop this proyect to help people to verify the authenticity of news articles using Python, NextJs and Django.
