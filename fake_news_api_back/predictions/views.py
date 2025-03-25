@@ -24,18 +24,29 @@ class ExplanationGenerator:
 
     def generate_explanation(self, text, predictions, final_prediction, confidence):
         prompt = f"""
-        Analiza el siguiente texto de noticia y los resultados de la predicción para determinar por qué se llegó a la conclusión de que la noticia es {final_prediction}.
+        Eres un asistente experto en análisis de noticias, especializado en detectar si una noticia es falsa o real.
 
-        Texto de la noticia:
+        Tu tarea es analizar el siguiente texto de noticia y los resultados de la predicción para explicar de manera clara y sencilla por qué se concluyó que la noticia es {final_prediction}.
+
+        ### Texto de la noticia:
         {text}
 
-        Resultados de la predicción:
+        ### Resultados de la predicción:
         {json.dumps(predictions, indent=2)}
 
-        Predicción final: {final_prediction}
-        Confianza: {confidence}
+        ### Predicción final:
+        {final_prediction}
 
-        Explica por qué el modelo predijo que la noticia es {final_prediction} basándote en el análisis del texto y los resultados de la predicción.
+        ### Confianza del modelo:
+        {confidence}
+
+        Por favor, genera una explicación detallada siguiendo esta estructura:
+
+        1. Análisis del texto: Identifica y describe los elementos clave del texto (como el tono emocional, la ausencia de fuentes confiables o inconsistencias en los datos) que pudieron influir en la predicción.
+        2. Razones del resultado: Explica, en términos sencillos, cómo el modelo llegó a la conclusión de que la noticia es {final_prediction} basándose en los resultados obtenidos.
+        3. Factores relevantes: Menciona otros aspectos o detalles del texto y del contexto que podrían influir en la confianza del resultado.
+
+        Asegúrate de que la explicación sea clara, concisa y comprensible para un público general sin conocimientos técnicos en inteligencia artificial, LO IMPORTANTE ES EL ANALISIS DE LA NOTICIA.
         """
 
         headers = {
