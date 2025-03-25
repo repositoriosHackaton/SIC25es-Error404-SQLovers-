@@ -321,7 +321,7 @@ class PredictFromImageView(APIView):
     parser_classes = [MultiPartParser]
 
     @swagger_auto_schema(
-        operation_description="Sube una imagen con texto de noticia y predice si es real o falsa.",
+        operation_description="Sube una imagen con texto de noticia y predice si es real o falsa usando todos los modelos disponibles.",
         tags=["Predictions (from image)"],
         manual_parameters=[
             openapi.Parameter(
@@ -345,23 +345,52 @@ class PredictFromImageView(APIView):
 
         clean_text = preprocess_text(text)
         text_vectorized = VECTORIZER.transform([clean_text])
-        model = MODELS.get("logistic")
-        prediction = model.predict(text_vectorized)[0]
-        prediction_label = "Fake" if prediction == 1 else "Real"
 
-        Prediction.objects.create(
-            text=text,
-            prediction=prediction_label,
-            model_used="logistic"
+        predictions = {}
+        weighted_sum = 0
+        total_weight = 0
+
+        for model_name, model in MODELS.items():
+            if model is None:
+                continue
+
+            stats = TrainingStats.objects.filter(model_name=model_name).first()
+            accuracy = stats.accuracy if stats else 0
+
+            start_time = time.time()
+            prediction = model.predict(text_vectorized)[0]
+            end_time = time.time()
+            prediction_time = round(end_time - start_time, 4)
+
+            prediction_label = "Fake" if prediction == 1 else "Real"
+
+            predictions[model_name] = {
+                "prediction": prediction_label,
+                "accuracy": accuracy,
+                "prediction_time": prediction_time,
+            }
+
+            weighted_sum += accuracy * prediction
+            total_weight += accuracy
+
+        final_score = weighted_sum / total_weight if total_weight > 0 else 0
+        final_prediction = "Fake" if final_score >= 0.5 else "Real"
+        confidence = final_score if final_prediction == "Fake" else 1 - final_score
+
+        explanation = explanation_generator.generate_explanation(
+            text,
+            predictions,
+            final_prediction,
+            confidence
         )
-
-        explanation = explanation_generator.generate_explanation(text, {"logistic": {"prediction": prediction_label, "accuracy": 0.7525, "prediction_time": 0.0023}}, prediction_label, 0.7525)
 
         return Response({
             "extracted_text": text,
-            "final_prediction": prediction_label,
+            "predictions": predictions,
+            "final_prediction": final_prediction,
+            "confidence": round(confidence, 4),
             "explanation": explanation
-        }, status=status.HTTP_200_OK)  
+        }, status=status.HTTP_200_OK)
         
 
 @swagger_auto_schema(
