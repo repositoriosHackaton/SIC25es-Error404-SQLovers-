@@ -11,9 +11,60 @@ from drf_yasg import openapi
 from .serializers import PredictNewsSerializer
 from predictions.models import Prediction, TrainingStats
 import time
-from django.http import JsonResponse
-from rest_framework.decorators import api_view
-from newspaper import Article
+import requests
+import json
+from django.conf import settings
+
+
+# Clase para generar explicaciones usando OpenRouter.ai
+class ExplanationGenerator:
+    def __init__(self, api_key, api_url):
+        self.api_key = api_key
+        self.url = api_url
+
+    def generate_explanation(self, text, predictions, final_prediction, confidence):
+        prompt = f"""
+        Analiza el siguiente texto de noticia y los resultados de la predicción para determinar por qué se llegó a la conclusión de que la noticia es {final_prediction}.
+
+        Texto de la noticia:
+        {text}
+
+        Resultados de la predicción:
+        {json.dumps(predictions, indent=2)}
+
+        Predicción final: {final_prediction}
+        Confianza: {confidence}
+
+        Explica por qué el modelo predijo que la noticia es {final_prediction} basándote en el análisis del texto y los resultados de la predicción.
+        """
+
+        headers = {
+            "api-key": self.api_key,
+            "Content-Type": "application/json",
+        }
+
+        data = {
+            "messages": [
+                {"role": "system", "content": "Eres un asistente que explica predicciones de noticias."},
+                {"role": "user", "content": prompt}
+            ],
+            "max_tokens": 500,  # Ajusta el límite de tokens si es necesario
+            "temperature": 0.7  # Controla la creatividad de la respuesta
+        }
+
+        try:
+            response = requests.post(self.url, headers=headers, json=data)
+            response.raise_for_status()  # Maneja errores HTTP
+            explanation = response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
+            return explanation if explanation else "No se generó una explicación válida."
+        except requests.exceptions.RequestException as e:
+            print(f"Error en la solicitud a la API: {e}")
+            print(f"Respuesta de la API: {getattr(response, 'text', 'No hay respuesta')}")
+            return "No se pudo generar una explicación en este momento."
+
+
+# Inicializa el generador de explicaciones con la API key y URL desde settings
+explanation_generator = ExplanationGenerator(api_key=settings.AZURE_OPENAI_API_KEY, api_url=settings.AZURE_OPENAI_API_URL)
 
 
 class PredictNewsView(APIView):
@@ -43,6 +94,14 @@ class PredictNewsView(APIView):
         )
         print("✅ Predicción guardada en la base de datos.")
 
+        # Generar explicación
+        explanation = explanation_generator.generate_explanation(
+            text,
+            {"logistic": {"prediction": prediction_label, "accuracy": 0.7525, "prediction_time": 0.0023}},
+            prediction_label,
+            0.7525
+        )
+
         return Response(
             {
                 "predictions": {
@@ -54,7 +113,7 @@ class PredictNewsView(APIView):
                 },
                 "final_prediction": prediction_label,
                 "confidence": 0.7525,  
-                "explanation": f"The logistic model predicted that the news is {prediction_label.lower()}."
+                "explanation": explanation
             },
             status=status.HTTP_200_OK,
         )
@@ -99,6 +158,14 @@ class PredictWithModelView(APIView):
         )
         print("✅ Predicción guardada en la base de datos.")
 
+        # Generar explicación
+        explanation = explanation_generator.generate_explanation(
+            text,
+            {model_type: {"prediction": prediction_label, "accuracy": 0.7425, "prediction_time": 0.0156}},
+            prediction_label,
+            0.7425
+        )
+
         return Response(
             {
                 "predictions": {
@@ -110,7 +177,7 @@ class PredictWithModelView(APIView):
                 },
                 "final_prediction": prediction_label,
                 "confidence": 0.7425,  
-                "explanation": f"The {model_type} model predicted that the news is {prediction_label.lower()}."
+                "explanation": explanation
             },
             status=status.HTTP_200_OK,
         )
@@ -223,12 +290,20 @@ class PredictWithAllModelsView(APIView):
 
         confidence = final_score if final_prediction == "Fake" else 1 - final_score
 
+        # Generar explicación
+        explanation = explanation_generator.generate_explanation(
+            text,
+            predictions,
+            final_prediction,
+            confidence
+        )
+
         return Response(
             {
                 "predictions": predictions,
                 "final_prediction": final_prediction,
                 "confidence": round(confidence, 4),
-                "explanation": f"The models collectively predicted that the news is {final_prediction.lower()}."
+                "explanation": explanation
             },
             status=status.HTTP_200_OK,
         )
@@ -271,91 +346,10 @@ class PredictFromImageView(APIView):
             model_used="logistic"
         )
 
+        explanation = explanation_generator.generate_explanation(text, {"logistic": {"prediction": prediction_label, "accuracy": 0.7525, "prediction_time": 0.0023}}, prediction_label, 0.7525)
+
         return Response({
             "extracted_text": text,
             "final_prediction": prediction_label,
-        }, status=201)  # <-- 201 si decides dejarlo como "created"
-
-
-@swagger_auto_schema(
-    operation_description="Extrae información relevante de un artículo de noticias a partir de su URL y predice si es real o falsa.",
-    request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'url': openapi.Schema(type=openapi.TYPE_STRING, description='URL del artículo de noticias'),
-        },
-        required=['url'],
-    ),
-    tags=['Article Analysis'],
-    method='POST',
-)
-@api_view(['POST'])
-def analyze_article_by_url(request):
-    """
-    Analyze a news article by its URL and predict if it is real or fake.
-    """
-    url = request.data.get('url')
-    if not url:
-        return JsonResponse({'error': 'URL is required'}, status=400)
-
-    try:
-        # Extract article content using Newspaper3k
-        article = Article(url)
-        article.download()
-        article.parse()
-
-        # Extract relevant information
-        extracted_data = {
-            'title': article.title,
-            'publish_date': article.publish_date,
-            'text': article.text,
-            'top_image': article.top_image,
-        }
-
-        # Ensure the article has text to analyze
-        if not article.text.strip():
-            return JsonResponse({'error': 'No text could be extracted from the URL.'}, status=400)
-
-        # Preprocess the text
-        clean_text = preprocess_text(article.text)
-        text_vectorized = VECTORIZER.transform([clean_text])
-
-        # Predict using all models
-        predictions = {}
-        weighted_sum = 0
-        total_weight = 0
-
-        for model_name, model in MODELS.items():
-            if model is None:
-                continue
-
-            stats = TrainingStats.objects.filter(model_name=model_name).first()
-            accuracy = stats.accuracy if stats else 0
-
-            prediction = model.predict(text_vectorized)[0]
-            prediction_label = "Fake" if prediction == 1 else "Real"
-
-            predictions[model_name] = {
-                "prediction": prediction_label,
-                "accuracy": accuracy,
-            }
-
-            weighted_sum += accuracy * prediction  # prediction será 1 para "Fake" y 0 para "Real"
-            total_weight += accuracy
-
-        final_score = weighted_sum / total_weight if total_weight > 0 else 0
-        final_prediction = "Fake" if final_score >= 0.5 else "Real"
-        confidence = final_score if final_prediction == "Fake" else 1 - final_score
-
-        response_data = {
-            "article_data": extracted_data,
-            "predictions": predictions,
-            "final_prediction": final_prediction,
-            "confidence": round(confidence, 4),
-            "explanation": f"The models collectively predicted that the news is {final_prediction.lower()}."
-        }
-
-        return JsonResponse(response_data, status=200)
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+            "explanation": explanation
+        }, status=status.HTTP_200_OK)  # <-- 201 si decides dejarlo como "created"
