@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion"
+import { useState, useEffect } from "react";
 import { analyzeNews, analyzeNewsByImage, analyzeNewsByUrl } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ import {
 } from "lucide-react";
 import { AnalysisResults } from "@/components/analysis-results";
 
-type InputType = "text" | "url" | "image";
+type InputType = "text" | "url" | "image" | "devs";
 type AnalysisStatus = "idle" | "loading" | "success" | "error";
 type PredictionMode = "default" | "all" | "single";
 
@@ -62,12 +63,15 @@ export function NewsAnalyzer() {
   const [status, setStatus] = useState<AnalysisStatus>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [tab, setTab] = useState<"general" | "devs" | "url" | "images">(
     "general"
   );
   const [predictionMode, setPredictionMode] =
     useState<PredictionMode>("default");
   const [selectedModel, setSelectedModel] = useState<string>("naive_bayes");
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0)
+  const [progress, setProgress] = useState(0)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -81,31 +85,74 @@ export function NewsAnalyzer() {
 
     try {
       let data;
-      console.log("Input type:", inputType); // Depuración
-      if (inputType === "text") {
-        if (!textInput.trim())
-          throw new Error("Please enter some text to analyze");
-        data = await analyzeNews(textInput, "default", "logistic");
-      } else if (inputType === "url") {
+      console.log("Input type:", inputType); 
+  
+      const effectiveInputType = inputType === "devs" ? "text" : inputType;
+  
+      if (effectiveInputType === "text") {
+        if (!textInput.trim()) throw new Error("Please enter some text to analyze");
+  
+        if (predictionMode === "all") {
+          data = await analyzeNews(textInput, "all");
+        } else if (predictionMode === "single") {
+          if (!selectedModel) throw new Error("Please select a model");
+          data = await analyzeNews(textInput, "single", selectedModel);
+        } else {
+          data = await analyzeNews(textInput, "default", "logistic");
+        }
+      } else if (effectiveInputType === "url") {
         if (!urlInput.trim()) throw new Error("Please enter a valid URL");
-        console.log("Analyzing URL:", urlInput); // Depuración
+        console.log("Analyzing URL:", urlInput); 
         data = await analyzeNewsByUrl(urlInput);
-      } else if (inputType === "image") {
+      } else if (effectiveInputType === "image") {
         if (!imageFile) throw new Error("Please upload an image");
         data = await analyzeNewsByImage(imageFile);
       }
 
-      console.log("API Response:", data); // Depuración
+      console.log("API Response:", data);
       setResult(data);
       setStatus("success");
     } catch (err) {
-      console.error("Error:", err); // Depuración
+      console.error("Error:", err); 
       setError(
         err instanceof Error ? err.message : "An unknown error occurred"
       );
       setStatus("error");
     }
   };
+
+  const messages = [
+    "Extrayendo el contenido...",
+    "Procesando datos...",
+    "Procesando con Machine learning...",
+    "Analizando resultados...",
+    "Verificando autenticidad...",
+    "Generando respuesta..",
+    "Ya casi terminamos...",
+    "Casi listo...",
+  ];
+
+  useEffect(() => {
+    // Message rotation
+    const messageInterval = setInterval(() => {
+      setCurrentMessageIndex((prev) => (prev + 1) % messages.length)
+    }, 3000)
+
+    // Progress animation
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          return 0
+        }
+        return prev + 1
+      })
+    }, 30)
+
+    return () => {
+      clearInterval(messageInterval)
+      clearInterval(progressInterval)
+    }
+  }, [messages.length])
 
   const resetForm = () => {
     setTextInput("");
@@ -115,6 +162,30 @@ export function NewsAnalyzer() {
     setError(null);
     setStatus("idle");
   };
+
+  useEffect(() => {
+    if (status === "loading") {
+      const messages = [
+        "Extrayendo el contenido...",
+        "Procesando datos...",
+        "Procesando con Machine learning...",
+        "Analizando resultados...",
+        "Verificando autenticidad...",
+        "Generando respuesta..",
+        "Ya casi terminamos...",
+        "Casi listo...",
+        "¡Listo!",
+      ];
+      let index = 0;
+
+      const interval = setInterval(() => {
+        setLoadingMessage(messages[index]);
+        index = (index + 1) % messages.length;
+      }, 2500);
+
+      return () => clearInterval(interval);
+    }
+  }, [status]);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -126,7 +197,63 @@ export function NewsAnalyzer() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {result ? (
+          {status === "loading" ? (
+            <div className="flex flex-col items-center justify-cente p-4">
+            <div className="w-full max-w-md rounded-xl shadow-lg overflow-hidden">
+      
+              <div className="p-6">
+                <div className="flex justify-center mb-6">
+                  <motion.div
+                    className="w-10 h-10 border-4 border-yellow-200 border-t-yellow-500 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 1,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                    }}
+                  />
+                </div>
+      
+                <div className="h-16 flex items-center justify-center">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentMessageIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeInOut",
+                      }}
+                      className="text-center text-gray-700 font-medium"
+                    >
+                      {messages[currentMessageIndex]}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+      
+                <div className="flex justify-center mt-4 space-x-2">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="w-2 h-2 bg-yellow-500 rounded-full"
+                      animate={{
+                        opacity: [0.3, 1, 0.3],
+                        scale: [0.8, 1.2, 0.8],
+                      }}
+                      transition={{
+                        duration: 1.5,
+                        repeat: Number.POSITIVE_INFINITY,
+                        delay: i * 0.2,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          ) : result ? (
             <AnalysisResults result={result} onReset={resetForm} />
           ) : (
             <>
@@ -170,7 +297,9 @@ export function NewsAnalyzer() {
                 {/* For Devs Mode */}
                 <TabsContent value="devs">
                   <div>
-                    <Label>Prediction Mode</Label>
+                    <Label className="my-3" htmlFor="text-input">
+                      Prediction Mode
+                    </Label>
                     <div className="flex space-x-2 mt-2">
                       <Button
                         variant={
