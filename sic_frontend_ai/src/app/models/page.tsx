@@ -10,8 +10,8 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function ModelsPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/50 py-12">
-      <div className="container px-4 md:px-6">
+    <main className="bg-gradient-to-b from-background to-muted/50 py-12">
+      <div className="container mx-auto px-4 md:px-6 w-max-auto">
         <div className="flex justify-between items-center mb-8">
           <Link href="/">
             <Button variant="outline" size="sm">
