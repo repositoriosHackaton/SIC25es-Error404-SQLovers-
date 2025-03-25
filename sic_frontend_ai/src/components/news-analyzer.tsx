@@ -204,7 +204,7 @@ export function NewsAnalyzer() {
               <div className="p-6">
                 <div className="flex justify-center mb-6">
                   <motion.div
-                    className="w-10 h-10 border-4 border-yellow-200 border-t-yellow-500 rounded-full"
+                    className="w-10 h-10 border-4 border-yellow-100 border-t-yellow-500 rounded-full"
                     animate={{ rotate: 360 }}
                     transition={{
                       duration: 1,
