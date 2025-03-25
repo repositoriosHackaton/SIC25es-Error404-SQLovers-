@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button"
 
 export default function Home() {
   return (
-    <main className="min-h-screen relative max-w-full">
+    <main className="relative max-w-full">
       <div className="relative">
         <div className="container px-4 md:px-3 mx-auto flex flex-col justify-center my-auto">
-          <div className="flex justify-between items-center mb-2 mt-4">
+          <div className="flex justify-between items-center mb-2 mt-6">
             <div>
               <Button variant="link" asChild>
                 <a href="https://github.com/repositoriosHackaton/SIC25es-Error404-SQLovers-" target="_blank" rel="noopener noreferrer">
@@ -39,7 +39,7 @@ export default function Home() {
             </p>
           </div>
 
-          <Alert className="mb-8 max-w-3xl mx-auto border-yellow-500">
+          <Alert className="mb-8 max-w-4xl mx-auto border-yellow-500">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Disclaimer</AlertTitle>
             <AlertDescription>
