@@ -32,7 +32,7 @@ export async function analyzeNewsByImage(imageFile: File) {
   const formData = new FormData();
   formData.append("image", imageFile);
 
-  const response = await axios.post("/api/predict/v1/api/ai/image", formData, {
+  const response = await axios.post(`${BASE_URL}/api/predict/v1/api/ai/image`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data;
