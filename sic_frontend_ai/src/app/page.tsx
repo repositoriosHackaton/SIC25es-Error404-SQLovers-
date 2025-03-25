@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="min-h-screen relative max-w-full">
       <div className="relative">
-        <div className="container px-4 md:px-3 mx-auto flex flex-col justify-center min-h-screen">
+        <div className="container px-4 md:px-3 mx-auto flex flex-col justify-center my-auto">
           <div className="flex justify-between items-center mb-4">
             <div>
               <Button variant="link" asChild>
@@ -53,7 +53,7 @@ export default function Home() {
         <footer className="w-full py-4">
           <div className="container mx-auto px-4 text-center">
             <p className="text-sm text-muted-foreground dark:text-neutral-400">
-              &copy; {new Date().getFullYear()} News Verification Tool. All rights reserved. - A project for Samsung Innovation Campus
+              &copy; {new Date().getFullYear()} News Verification Tool. - A project for Samsung Innovation Campus
             </p>
           </div>
         </footer>
