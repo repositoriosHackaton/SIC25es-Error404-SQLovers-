@@ -1,4 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+import axios from "axios";
 
 export async function analyzeNews(content: string, mode: "default" | "all" | "single", modelType?: string) {
   let endpoint = `${BASE_URL}/api/predict/v1/api/ai/default`; 
@@ -20,4 +21,19 @@ export async function analyzeNews(content: string, mode: "default" | "all" | "si
   }
 
   return response.json();
+}
+
+export async function analyzeNewsByUrl(url: string) {
+  const response = await axios.post("/api/analyze-url/", { url });
+  return response.data;
+}
+
+export async function analyzeNewsByImage(imageFile: File) {
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  const response = await axios.post("/api/predict/v1/api/ai/image", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
 }
