@@ -1,7 +1,6 @@
 annotated-types==0.7.0
 asgiref==3.8.1
 beautifulsoup4==4.13.3
-blis==1.2.0
 catalogue==2.0.10
 certifi==2025.1.31
 charset-normalizer==3.4.1
