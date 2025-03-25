@@ -2,17 +2,17 @@ import { AlertTriangle, CheckCircle, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface PredictionDetails {
-  accuracy: number;
+  accuracy?: number;
   prediction: string;
-  prediction_time: number;
+  prediction_time?: number;
 }
 
 interface AnalysisResultProps {
   result: {
     final_prediction: string;
     explanation: string;
-    predictions: Record<string, PredictionDetails>;
-    confidence: number;
+    predictions?: Record<string, PredictionDetails>;
+    confidence?: number;
   };
   onReset: () => void;
 }
@@ -45,8 +45,8 @@ export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
           <h3 className={`text-xl font-bold ${getResultColor()}`}>Potentially {final_prediction}</h3>
           <div className="flex items-center mt-1">
             <span className="text-sm text-muted-foreground mr-2">Confidence:</span>
-            <Progress value={confidence * 100} className="h-2 w-24" />
-            <span className="ml-2 text-sm">{Math.round(confidence * 100)}%</span>
+            <Progress value={(confidence ?? 0) * 100} className="h-2 w-24" />
+            <span className="ml-2 text-sm">{Math.round((confidence ?? 0) * 100)}%</span>
           </div>
         </div>
       </div>
@@ -55,15 +55,15 @@ export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
       <div>
         <h4 className="font-medium mb-2">Model Evaluations:</h4>
         <div className="space-y-4">
-          {Object.entries(predictions).map(([model, details]) => (
+          {predictions && Object.entries(predictions).map(([model, details]) => (
             <div key={model} className="flex items-center justify-between p-3 bg-muted rounded-lg">
               <div>
                 <h4 className="font-medium capitalize">{model.replace(/_/g, ' ')}</h4>
-                <p className="text-sm text-muted-foreground">Accuracy: {details.accuracy.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">Accuracy: {(details.accuracy ?? 0).toFixed(2)}</p>
                 <p className="text-sm text-muted-foreground">Time: {details.prediction_time}s</p>
               </div>
               <div className="flex items-center">
-                <Progress value={details.accuracy * 100} className="h-2 w-24" />
+                <Progress value={(details.accuracy ?? 0) * 100} className="h-2 w-24" />
                 <span className="ml-2 text-sm">{details.prediction}</span>
               </div>
             </div>
