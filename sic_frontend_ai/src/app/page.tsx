@@ -10,7 +10,7 @@ export default function Home() {
     <main className="min-h-screen relative max-w-full">
       <div className="relative">
         <div className="container px-4 md:px-3 mx-auto flex flex-col justify-center my-auto">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-2 mt-4">
             <div>
               <Button variant="link" asChild>
                 <a href="https://github.com/repositoriosHackaton/SIC25es-Error404-SQLovers-" target="_blank" rel="noopener noreferrer">
