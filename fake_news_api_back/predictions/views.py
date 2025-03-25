@@ -28,7 +28,7 @@ class ExplanationGenerator:
         prompt = f"""
         Eres un asistente experto en análisis de noticias, especializado en detectar si una noticia es falsa o real.
 
-        Tu tarea es analizar el siguiente texto de noticia y los resultados de la predicción para explicar de manera clara y sencilla por qué se concluyó que la noticia es {final_prediction}.
+        Tu tarea es analizar el siguiente texto de noticia y los resultados de la predicción para explicar de manera clara y sencilla por qué se concluyó que la noticia es {final_prediction}. Asegúrate de que el texto no contenga lenguaje violento, sexual, de odio o de autolesión.
 
         ### Texto de la noticia:
         {text}
