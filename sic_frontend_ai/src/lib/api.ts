@@ -24,7 +24,7 @@ export async function analyzeNews(content: string, mode: "default" | "all" | "si
 }
 
 export async function analyzeNewsByUrl(url: string) {
-  const response = await axios.post("/api/analyze-url/", { url });
+  const response = await axios.post(`${BASE_URL}/api/analyze-url/`, { url });
   return response.data;
 }
 
