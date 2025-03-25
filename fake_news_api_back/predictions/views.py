@@ -61,7 +61,7 @@ class ExplanationGenerator:
                 {"role": "system", "content": "Eres un asistente que explica predicciones de noticias."},
                 {"role": "user", "content": prompt}
             ],
-            "max_tokens": 500,  
+            "max_tokens": 1000,  
             "temperature": 0.7  
         }
 
