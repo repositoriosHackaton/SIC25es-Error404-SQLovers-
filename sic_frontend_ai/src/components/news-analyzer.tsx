@@ -32,11 +32,18 @@ type PredictionMode = "default" | "all" | "single";
 interface AnalysisResult {
   final_prediction: string;
   explanation: string;
-  predictions: Record<
+  predictions?: Record<
     string,
-    { accuracy: number; prediction: string; prediction_time: number }
+    { accuracy: number; prediction: string; prediction_time?: number }
   >;
-  confidence: number;
+  confidence?: number;
+  extracted_text?: string;
+  article_data?: {
+    title: string;
+    publish_date: string | null;
+    text: string;
+    top_image: string | null;
+  };
 }
 
 const MODELS = [
@@ -55,7 +62,9 @@ export function NewsAnalyzer() {
   const [status, setStatus] = useState<AnalysisStatus>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"general" | "devs" | "url" | "images">("general");
+  const [tab, setTab] = useState<"general" | "devs" | "url" | "images">(
+    "general"
+  );
   const [predictionMode, setPredictionMode] =
     useState<PredictionMode>("default");
   const [selectedModel, setSelectedModel] = useState<string>("naive_bayes");
@@ -74,7 +83,8 @@ export function NewsAnalyzer() {
       let data;
       console.log("Input type:", inputType); // Depuración
       if (inputType === "text") {
-        if (!textInput.trim()) throw new Error("Please enter some text to analyze");
+        if (!textInput.trim())
+          throw new Error("Please enter some text to analyze");
         data = await analyzeNews(textInput, "default", "logistic");
       } else if (inputType === "url") {
         if (!urlInput.trim()) throw new Error("Please enter a valid URL");
@@ -85,10 +95,14 @@ export function NewsAnalyzer() {
         data = await analyzeNewsByImage(imageFile);
       }
 
+      console.log("API Response:", data); // Depuración
       setResult(data);
       setStatus("success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      console.error("Error:", err); // Depuración
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
       setStatus("error");
     }
   };
@@ -116,21 +130,21 @@ export function NewsAnalyzer() {
             <AnalysisResults result={result} onReset={resetForm} />
           ) : (
             <>
-                <Tabs
+              <Tabs
                 defaultValue="general"
                 onValueChange={(value) => setInputType(value as InputType)}
-                >
+              >
                 <TabsList className="grid w-full grid-cols-4 mb-6">
                   <TabsTrigger value="general">
-                  <FileText className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-4 w-4" />
                     Text
                   </TabsTrigger>
                   <TabsTrigger value="url">
-                  <LinkIcon className="mr-2 h-4 w-4" />
+                    <LinkIcon className="mr-2 h-4 w-4" />
                     URL
                   </TabsTrigger>
-                  <TabsTrigger value="images">
-                  <Upload className="mr-2 h-4 w-4" />
+                  <TabsTrigger value="image">
+                    <Upload className="mr-2 h-4 w-4" />
                     Image
                   </TabsTrigger>
                   <TabsTrigger value="devs">
@@ -221,9 +235,11 @@ export function NewsAnalyzer() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="images">
+                <TabsContent value="image">
                   <div className="space-y-4">
-                    <Label htmlFor="image-input">Upload screenshot of news article</Label>
+                    <Label htmlFor="image-input">
+                      Upload screenshot of news article
+                    </Label>
                     <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                       <Input
                         id="image-input"
@@ -232,32 +248,47 @@ export function NewsAnalyzer() {
                         className="hidden"
                         onChange={(e) => {
                           if (e.target.files && e.target.files[0]) {
+                            console.log("Selected file:", e.target.files[0]); // Depuración
                             setImageFile(e.target.files[0]);
                           }
                         }}
                       />
-                      <Label htmlFor="image-input" className="flex flex-col items-center justify-center cursor-pointer">
-                      <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                      <span className="text-sm font-medium">
-                        {imageFile ? imageFile.name : "Click to upload or drag and drop"}
-                      </span>
-                      <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
-                    </Label>
+                      <Label
+                        htmlFor="image-input"
+                        className="flex flex-col items-center justify-center cursor-pointer"
+                      >
+                        <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+                        <span className="text-sm font-medium">
+                          {imageFile
+                            ? imageFile.name
+                            : "Click to upload or drag and drop"}
+                        </span>
+                        <span className="text-xs text-muted-foreground mt-1">
+                          PNG, JPG up to 10MB
+                        </span>
+                      </Label>
                     </div>
                   </div>
                 </TabsContent>
-
               </Tabs>
             </>
           )}
         </CardContent>
         <CardFooter className="flex justify-end space-x-3">
           {result ? (
-            <Button onClick={resetForm} variant="outline" className="w-full sm:w-auto">
+            <Button
+              onClick={resetForm}
+              variant="outline"
+              className="w-full sm:w-auto"
+            >
               Analyze Other
             </Button>
           ) : (
-            <Button onClick={handleAnalyze} disabled={status === "loading"} className="w-full sm:w-auto">
+            <Button
+              onClick={handleAnalyze}
+              disabled={status === "loading"}
+              className="w-full sm:w-auto"
+            >
               {status === "loading" ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
