@@ -103,7 +103,7 @@ export function NewsAnalyzer() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <Card className="shadow-lg border-3">
         <CardHeader>
           <CardTitle>Analyze News Content</CardTitle>
