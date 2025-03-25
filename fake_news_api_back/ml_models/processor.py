@@ -1,8 +1,10 @@
 import re
 import string
+import pytesseract
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-
+from PIL import Image
+import os
 # Cargar las stopwords en español
 try:
     stop_words = set(stopwords.words("spanish"))
@@ -54,3 +56,15 @@ def preprocess_text(text):
     # Unir las palabras procesadas en una sola cadena
     return " ".join(filtered_words)
 
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# Le decimos a Tesseract dónde está la carpeta de idiomas
+os.environ['TESSDATA_PREFIX'] = r'C:\Program Files\Tesseract-OCR\tessdata'
+
+def extract_text_from_image(image_file):
+    """
+    Recibe un archivo de imagen y extrae texto usando OCR.
+    """
+    image = Image.open(image_file)
+    extracted_text = pytesseract.image_to_string(image, lang='spa')  
+    return extracted_text

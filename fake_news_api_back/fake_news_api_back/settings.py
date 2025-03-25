@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-*0)46e7^g7sxqxdwr=y&y^unlh!_fc@4f*j^j^j)#)al5xdz8*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://127.0.0.1:8000','http://localhost:3000','https://samsung-innovation-campus-final-project.vercel.app/','samsunginnovationcampus-finalpro-production.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1','http://localhost:3000','https://samsung-innovation-campus-final-project.vercel.app','samsunginnovationcampus-finalpro-production.up.railway.app']
 
 # Application definition
 
@@ -51,8 +51,8 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://samsung-innovation-campus-final-project.vercel.app/",
-    "samsunginnovationcampus-finalpro-production.up.railway.app",
+    "https://samsung-innovation-campus-final-project.vercel.app",
+    "https://samsunginnovationcampus-finalpro-production.up.railway.app",
     "http://127.0.0.1:8000"# Ajusta según el puerto de tu Next.js
 ]
 
