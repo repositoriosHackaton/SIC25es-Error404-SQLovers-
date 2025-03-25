@@ -11,6 +11,9 @@ from drf_yasg import openapi
 from .serializers import PredictNewsSerializer
 from predictions.models import Prediction, TrainingStats
 import time
+from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from newspaper import Article
 
 
 class PredictNewsView(APIView):
@@ -272,3 +275,87 @@ class PredictFromImageView(APIView):
             "extracted_text": text,
             "final_prediction": prediction_label,
         }, status=201)  # <-- 201 si decides dejarlo como "created"
+
+
+@swagger_auto_schema(
+    operation_description="Extrae información relevante de un artículo de noticias a partir de su URL y predice si es real o falsa.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'url': openapi.Schema(type=openapi.TYPE_STRING, description='URL del artículo de noticias'),
+        },
+        required=['url'],
+    ),
+    tags=['Article Analysis'],
+    method='POST',
+)
+@api_view(['POST'])
+def analyze_article_by_url(request):
+    """
+    Analyze a news article by its URL and predict if it is real or fake.
+    """
+    url = request.data.get('url')
+    if not url:
+        return JsonResponse({'error': 'URL is required'}, status=400)
+
+    try:
+        # Extract article content using Newspaper3k
+        article = Article(url)
+        article.download()
+        article.parse()
+
+        # Extract relevant information
+        extracted_data = {
+            'title': article.title,
+            'publish_date': article.publish_date,
+            'text': article.text,
+            'top_image': article.top_image,
+        }
+
+        # Ensure the article has text to analyze
+        if not article.text.strip():
+            return JsonResponse({'error': 'No text could be extracted from the URL.'}, status=400)
+
+        # Preprocess the text
+        clean_text = preprocess_text(article.text)
+        text_vectorized = VECTORIZER.transform([clean_text])
+
+        # Predict using all models
+        predictions = {}
+        weighted_sum = 0
+        total_weight = 0
+
+        for model_name, model in MODELS.items():
+            if model is None:
+                continue
+
+            stats = TrainingStats.objects.filter(model_name=model_name).first()
+            accuracy = stats.accuracy if stats else 0
+
+            prediction = model.predict(text_vectorized)[0]
+            prediction_label = "Fake" if prediction == 1 else "Real"
+
+            predictions[model_name] = {
+                "prediction": prediction_label,
+                "accuracy": accuracy,
+            }
+
+            weighted_sum += accuracy * prediction  # prediction será 1 para "Fake" y 0 para "Real"
+            total_weight += accuracy
+
+        final_score = weighted_sum / total_weight if total_weight > 0 else 0
+        final_prediction = "Fake" if final_score >= 0.5 else "Real"
+        confidence = final_score if final_prediction == "Fake" else 1 - final_score
+
+        response_data = {
+            "article_data": extracted_data,
+            "predictions": predictions,
+            "final_prediction": final_prediction,
+            "confidence": round(confidence, 4),
+            "explanation": f"The models collectively predicted that the news is {final_prediction.lower()}."
+        }
+
+        return JsonResponse(response_data, status=200)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
