@@ -23,3 +23,29 @@
 - 🧪 Documentación interactiva con Swagger (Redoc también disponible)
 
 
+## Instalación
+
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/repositoriosHackaton/SIC25es-Error404-SQLovers-.git
+   ```
+
+2. Navega a la carpeta del proyecto:
+   ```bash
+   cd ./sic_frontend_ai
+
+   ```
+
+3. Instala las dependencias :
+   ```bash
+   npm install
+
+   ```
+
+4. ejecuta el servidor de desarrollo:
+     ```bash
+     npm run dev
+
+     ```
+
+5. Accede al proyecto en tu navegador: `http://localhost:3000`
