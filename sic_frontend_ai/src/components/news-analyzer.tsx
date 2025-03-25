@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { analyzeNews } from "@/lib/api";
+import { analyzeNews, analyzeNewsByImage, analyzeNewsByUrl } from "@/lib/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,7 +55,7 @@ export function NewsAnalyzer() {
   const [status, setStatus] = useState<AnalysisStatus>("idle");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<"general" | "devs">("general");
+  const [tab, setTab] = useState<"general" | "devs" | "url" | "images">("general");
   const [predictionMode, setPredictionMode] =
     useState<PredictionMode>("default");
   const [selectedModel, setSelectedModel] = useState<string>("naive_bayes");
@@ -71,17 +71,24 @@ export function NewsAnalyzer() {
     setError(null);
 
     try {
-      if (!textInput.trim()) {
-        throw new Error("Please enter some text to analyze");
+      let data;
+      console.log("Input type:", inputType); // Depuración
+      if (inputType === "text") {
+        if (!textInput.trim()) throw new Error("Please enter some text to analyze");
+        data = await analyzeNews(textInput, "default", "logistic");
+      } else if (inputType === "url") {
+        if (!urlInput.trim()) throw new Error("Please enter a valid URL");
+        console.log("Analyzing URL:", urlInput); // Depuración
+        data = await analyzeNewsByUrl(urlInput);
+      } else if (inputType === "image") {
+        if (!imageFile) throw new Error("Please upload an image");
+        data = await analyzeNewsByImage(imageFile);
       }
 
-      const data = await analyzeNews(textInput, predictionMode, selectedModel);
       setResult(data);
       setStatus("success");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
       setStatus("error");
     }
   };
@@ -111,7 +118,7 @@ export function NewsAnalyzer() {
             <>
                 <Tabs
                 defaultValue="general"
-                onValueChange={(value) => setTab(value as "general" | "devs")}
+                onValueChange={(value) => setInputType(value as InputType)}
                 >
                 <TabsList className="grid w-full grid-cols-4 mb-6">
                   <TabsTrigger value="general">
@@ -207,7 +214,7 @@ export function NewsAnalyzer() {
                     <Input
                       id="url-input"
                       type="url"
-                      placeholder="https://example.com/news-article"
+                      placeholder="https://noticias.com/nota"
                       value={urlInput}
                       onChange={(e) => setUrlInput(e.target.value)}
                     />
@@ -223,15 +230,19 @@ export function NewsAnalyzer() {
                         type="file"
                         accept="image/*"
                         className="hidden"
-                        onChange={handleFileChange}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setImageFile(e.target.files[0]);
+                          }
+                        }}
                       />
                       <Label htmlFor="image-input" className="flex flex-col items-center justify-center cursor-pointer">
-                        <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                        <span className="text-sm font-medium">
-                          {imageFile ? imageFile.name : "Click to upload or drag and drop"}
-                        </span>
-                        <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
-                      </Label>
+                      <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+                      <span className="text-sm font-medium">
+                        {imageFile ? imageFile.name : "Click to upload or drag and drop"}
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
+                    </Label>
                     </div>
                   </div>
                 </TabsContent>
@@ -242,19 +253,11 @@ export function NewsAnalyzer() {
         </CardContent>
         <CardFooter className="flex justify-end space-x-3">
           {result ? (
-            <Button
-              onClick={resetForm}
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={resetForm} variant="outline" className="w-full sm:w-auto">
               Analyze Other
             </Button>
           ) : (
-            <Button
-              onClick={handleAnalyze}
-              disabled={status === "loading"}
-              className="w-full sm:w-auto"
-            >
+            <Button onClick={handleAnalyze} disabled={status === "loading"} className="w-full sm:w-auto">
               {status === "loading" ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
