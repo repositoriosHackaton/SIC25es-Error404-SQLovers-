@@ -12,3 +12,14 @@
  - Henry Levi Melgares Valdez
 
 
+
+## 🚀 Funcionalidades principales
+
+- ✅ Predicción de noticias falsas o verdaderas desde texto plano
+- 📸 Carga de imágenes (capturas, fotos, etc.) y extracción de texto automática con **OCR**
+- 🧼 Limpieza del texto con **NLP (Procesamiento de Lenguaje Natural)**
+- 🤖 Clasificación usando múltiples modelos de **Machine Learning**
+- 📊 Registro de métricas de entrenamiento y predicciones
+- 🧪 Documentación interactiva con Swagger (Redoc también disponible)
+
+
