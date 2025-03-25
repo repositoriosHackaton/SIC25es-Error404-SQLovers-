@@ -57,6 +57,16 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
+AZURE_OPENAI_API_URL = os.getenv('AZURE_OPENAI_API_URL')
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+AZURE_OPENAI_API_URL = os.getenv('AZURE_OPENAI_API_URL')
+AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
+AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -68,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 CORS_ALLOW_METHODS = [
     "GET",
@@ -161,3 +172,7 @@ STATIC_FILE_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+AZURE_OPENAI_API_URL = os.getenv('AZURE_OPENAI_API_URL')
+AZURE_OPENAI_API_KEY = os.getenv('AZURE_OPENAI_API_KEY')
