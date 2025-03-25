@@ -33,7 +33,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex flex-col items-center text-center space-y-4 mb-8">
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-4 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-neutral-700 dark:via-white dark:to-neutral-700 dark:animate-text-shimmer text-center">News Verification Tool</h1>
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-4 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-neutral-500 dark:via-white dark:to-neutral-500 dark:animate-text-shimmer text-center">News Verification Tool</h1>
             <p className="max-w-[700px] text-muted-foreground md:text-xl">
               Verify the authenticity of news articles by pasting text, URLs, or uploading screenshots.
             </p>
