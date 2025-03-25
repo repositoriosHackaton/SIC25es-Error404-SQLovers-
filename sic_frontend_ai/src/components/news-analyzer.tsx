@@ -21,6 +21,7 @@ import {
   LinkIcon,
   FileText,
   AlertTriangle,
+  Terminal,
 } from "lucide-react";
 import { AnalysisResults } from "@/components/analysis-results";
 
@@ -108,13 +109,27 @@ export function NewsAnalyzer() {
             <AnalysisResults result={result} onReset={resetForm} />
           ) : (
             <>
-              <Tabs
+                <Tabs
                 defaultValue="general"
                 onValueChange={(value) => setTab(value as "general" | "devs")}
-              >
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="general">General</TabsTrigger>
-                  <TabsTrigger value="devs">For Devs</TabsTrigger>
+                >
+                <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsTrigger value="general">
+                  <FileText className="mr-2 h-4 w-4" />
+                    Text
+                  </TabsTrigger>
+                  <TabsTrigger value="url">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="images">
+                  <Upload className="mr-2 h-4 w-4" />
+                    Image
+                  </TabsTrigger>
+                  <TabsTrigger value="devs">
+                    <Terminal className="mr-2 h-4 w-4" />
+                    For Devs
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* General Mode */}
@@ -185,6 +200,42 @@ export function NewsAnalyzer() {
                     onChange={(e) => setTextInput(e.target.value)}
                   />
                 </TabsContent>
+
+                <TabsContent value="url">
+                  <div className="space-y-4">
+                    <Label htmlFor="url-input">Enter news article URL</Label>
+                    <Input
+                      id="url-input"
+                      type="url"
+                      placeholder="https://example.com/news-article"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="images">
+                  <div className="space-y-4">
+                    <Label htmlFor="image-input">Upload screenshot of news article</Label>
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                      <Input
+                        id="image-input"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                      <Label htmlFor="image-input" className="flex flex-col items-center justify-center cursor-pointer">
+                        <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+                        <span className="text-sm font-medium">
+                          {imageFile ? imageFile.name : "Click to upload or drag and drop"}
+                        </span>
+                        <span className="text-xs text-muted-foreground mt-1">PNG, JPG up to 10MB</span>
+                      </Label>
+                    </div>
+                  </div>
+                </TabsContent>
+
               </Tabs>
             </>
           )}
