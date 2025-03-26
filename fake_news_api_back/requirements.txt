@@ -72,7 +72,6 @@ sqlparse==0.5.3
 srsly==2.5.1
 swagger-ui-py==23.9.23
 termcolor==2.5.0
-thinc==8.3.4
 threadpoolctl==3.6.0
 tinysegmenter==0.3
 tldextract==5.1.3
