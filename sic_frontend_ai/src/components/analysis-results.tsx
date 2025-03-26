@@ -36,6 +36,16 @@ export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
     return <Info className="h-8 w-8 text-blue-500" />;
   };
 
+  const parseExplanation = (explanation: string) => {
+    const sections = explanation.split(/\d+\.\s+/).filter(Boolean);
+    return sections.map((section, index) => (
+      <div key={index} className="space-y-2">
+        <h4 className="font-medium">{['Análisis del Texto', 'Razones del Resultado', 'Factores Relevantes'][index]}</h4>
+        <p className="text-sm text-muted-foreground">{section.trim()}</p>
+      </div>
+    ));
+  };
+
   return (
     <div className="space-y-6">
       {/* Header - Resultado Final */}
@@ -72,9 +82,9 @@ export function AnalysisResults({ result, onReset }: AnalysisResultProps) {
       </div>
 
       {/* Explicación del Análisis */}
-      <div>
-        <h4 className="font-medium mb-2">Analysis Explanation:</h4>
-        <p className="text-muted-foreground">{explanation}</p>
+      <div className="space-y-4">
+        <h4 className="font-medium">Analysis Explanation:</h4>
+        {parseExplanation(explanation)}
       </div>
 
       {/* Disclaimer */}
