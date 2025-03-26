@@ -68,9 +68,6 @@ shellingham==1.5.4
 six==1.17.0
 smart-open==7.1.0
 soupsieve==2.6
-spacy==3.8.4
-spacy-legacy==3.0.12
-spacy-loggers==1.0.5
 sqlparse==0.5.3
 srsly==2.5.1
 swagger-ui-py==23.9.23
